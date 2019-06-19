@@ -14,23 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.sling.uca.impl;
-
-import javassist.bytecode.Descriptor;
+package org.apache.sling.cta.impl;
 
 /**
- * Sets timeouts for HTTP calls done using <em>OkHttp 3.x</em>
- * 
- * <p>It inserts two calls to <tt>okhttp3.OkHttpClient$Builder</tt> that set default
- * values for <tt>connectTimeout</tt> and <tt>readTimeout</tt>.</p>
+ * Basic information about a {@link Throwable} that was recorded in a file
  */
-public class OkHttpTimeoutTransformer extends UpdateFieldsInConstructorTimeoutTransformer {
-
-    private static final String REQUEST_CONFIG_BUILDER_CLASS_NAME = Descriptor.toJvmName("okhttp3.OkHttpClient$Builder");
+class RecordedThrowable {
     
-    public OkHttpTimeoutTransformer(long connectTimeoutMillis, long readTimeoutMillis, AgentInfo agentInfoMBean) {
-        
-        super(REQUEST_CONFIG_BUILDER_CLASS_NAME, "connectTimeout", "readTimeout", 
-            connectTimeoutMillis, readTimeoutMillis, agentInfoMBean);
+    static RecordedThrowable fromLine(String line) {
+        line = line.replace(AgentIT.EXCEPTION_MARKER, "");
+
+        String className = line.substring(0, line.indexOf(':'));
+        String message = line.substring(line.indexOf(':') + 2); // ignore ':' and leading ' '
+
+        return new RecordedThrowable(className, message);
+    }
+    
+    String className;
+    String message;
+
+    public RecordedThrowable(String className, String message) {
+        this.className = className;
+        this.message = message;
     }
 }

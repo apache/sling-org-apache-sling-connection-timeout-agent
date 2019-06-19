@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.sling.uca.impl;
+package org.apache.sling.cta.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.sling.uca.impl.HttpClientLauncher.ClientType;
+import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 
 /**
  * Launches the {@link HttpClientLauncher} as a separate process with the timeout agent enabled

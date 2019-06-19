@@ -14,32 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.sling.uca.impl;
-
-import java.time.Duration;
+package org.apache.sling.cta.impl;
 
 /**
- * Allows control of a local server
+ * Exposes runtime information about the agent using <tt>JMX</tt>.
  *
  */
-public interface MisbehavingServerControl {
+public interface AgentInfoMBean {
 
     /**
-     * Returns the port on which the local server is bound
+     * Returns the connect timeout
      * 
-     * @return the port
+     * @return the connect timeout as configured, in milliseconds
      */
-    int getLocalPort();
+    long getConnectTimeoutMillis();
 
     /**
-     * Sets a new value for the handleDelay parameter
+     * Returns the read timeout
      * 
-     * <p>This value reflects how long the HTTP handler will wait before handling the client request.</p>
-     * 
-     * <p>The value only takes effect for the current test method invocation and will be reset
-     * for the next one.</p>
-     * 
-     * @param handleDelay the new duration
+     * @return the read timeout as configured, in milliseconds
      */
-    void setHandleDelay(Duration handleDelay);
+    long getReadTimeoutMillis();
+    
+    /**
+     * Returns the active transformers
+     * 
+     * @return the active transformers
+     */
+    String[] getTransformers();
+    
+    /**
+     * Returns the classes that were transformed to enforce global timeout defaults
+     * 
+     * @return the classes that were transformed
+     */
+    String[] getTransformedClasses();
 }

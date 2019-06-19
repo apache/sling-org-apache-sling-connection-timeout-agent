@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.sling.uca.impl;
+package org.apache.sling.cta.impl;
 
 import static java.time.Duration.ofSeconds;
 import static java.util.Objects.requireNonNull;
-import static org.apache.sling.uca.impl.HttpClientLauncher.ClientType.HC3;
-import static org.apache.sling.uca.impl.HttpClientLauncher.ClientType.HC4;
-import static org.apache.sling.uca.impl.HttpClientLauncher.ClientType.JavaNet;
-import static org.apache.sling.uca.impl.HttpClientLauncher.ClientType.OkHttp;
+import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.HC3;
+import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.HC4;
+import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.JavaNet;
+import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.OkHttp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.sling.uca.impl.HttpClientLauncher.ClientType;
+import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

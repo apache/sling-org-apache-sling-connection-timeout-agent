@@ -14,39 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.sling.uca.impl;
+package org.apache.sling.cta.impl;
+
+import java.io.IOException;
+
+import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 
 /**
- * Exposes runtime information about the agent using <tt>JMX</tt>.
- *
+ * Data class for defining specific error messages related to individual {@link ClientType client types}. 
  */
-public interface AgentInfoMBean {
+class ErrorDescriptor {
+    Class<? extends IOException> connectTimeoutClass;
+    String connectTimeoutMessageRegex;
+    String readTimeoutMessage;
 
-    /**
-     * Returns the connect timeout
-     * 
-     * @return the connect timeout as configured, in milliseconds
-     */
-    long getConnectTimeoutMillis();
-
-    /**
-     * Returns the read timeout
-     * 
-     * @return the read timeout as configured, in milliseconds
-     */
-    long getReadTimeoutMillis();
-    
-    /**
-     * Returns the active transformers
-     * 
-     * @return the active transformers
-     */
-    String[] getTransformers();
-    
-    /**
-     * Returns the classes that were transformed to enforce global timeout defaults
-     * 
-     * @return the classes that were transformed
-     */
-    String[] getTransformedClasses();
+    public ErrorDescriptor(Class<? extends IOException> connectTimeoutClass, String connectTimeoutMessageRegex,
+            String readTimeoutMessage) {
+        this.connectTimeoutClass = connectTimeoutClass;
+        this.connectTimeoutMessageRegex = connectTimeoutMessageRegex;
+        this.readTimeoutMessage = readTimeoutMessage;
+    }
 }

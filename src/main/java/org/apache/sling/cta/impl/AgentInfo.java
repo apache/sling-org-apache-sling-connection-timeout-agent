@@ -29,7 +29,7 @@ public class AgentInfo implements AgentInfoMBean {
     
     static {
         try {
-            NAME = new ObjectName(AgentInfo.class.getPackage().getName()+":type=Agent");
+            NAME = new ObjectName(AgentInfo.class.getPackage().getName().replace(".impl", "")+":type=Agent");
         } catch (MalformedObjectNameException e) {
             throw new ExceptionInInitializerError(e);
         }

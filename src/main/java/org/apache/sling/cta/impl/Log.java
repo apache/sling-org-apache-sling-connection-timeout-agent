@@ -32,7 +32,7 @@ import java.util.Formatter;
  */
 abstract class Log {
     
-    private static Log INSTANCE;
+    private static Log INSTANCE; // NOSONAR - name is OK for static fields
 
     /**
      * Configures the global logger instance
@@ -87,13 +87,14 @@ abstract class Log {
 
         @Override
         public void log(String msg, Object... args) {
-            System.out.format(LOG_ENTRY_PREFIX + msg + " %n", args);
+            System.out.format(LOG_ENTRY_PREFIX + msg + " %n", args); // NOSONAR - this is a logger, OK to use System.out
         }
         
         @Override
         public void fatal(String msg, Throwable t) {
-            t.printStackTrace(); // ensure _something_ is printed
-            throw new RuntimeException(LOG_ENTRY_PREFIX + msg, t);
+            // ensure _something_ is printed, throwable might not be printed
+            t.printStackTrace(); // NOSONAR - OK to use printStackTrace, we are a logger
+            throw new RuntimeException(LOG_ENTRY_PREFIX + msg, t); // NOSONAR - we don't want custom exceptions
             
         }
     }

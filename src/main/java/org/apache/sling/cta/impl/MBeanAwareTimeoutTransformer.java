@@ -64,7 +64,7 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
             return classfileBuffer;
         } catch (Exception e) {
             Log.get().fatal("Transformation failed", e);
-            return null;
+            return null; // NOSONAR: null return is OK in case no transform is performed
         }
     }
 
@@ -75,6 +75,6 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
      * @return the new class definition
      * @throws Exception in case of any problems while transforming
      */
-    protected abstract byte[] doTransformClass(CtClass cc) throws Exception;
+    protected abstract byte[] doTransformClass(CtClass cc) throws Exception; // NOSONAR - throwing Exception is OK, we don't want custom exceptions
 
 }

@@ -28,7 +28,7 @@ import javax.management.MBeanRegistrationException;
 import javax.management.NotCompliantMBeanException;
 
 public class Agent {
-
+    
     public static void premain(String args, Instrumentation inst) {
         
         String[] parsedArgs = args != null ? args.split(",") : new String[0];
@@ -68,5 +68,10 @@ public class Agent {
         }
 
         Log.get().log("All transformers installed");
-    }    
+    }
+    
+    // prevent instantiation
+    private Agent() {
+        
+    }
 }

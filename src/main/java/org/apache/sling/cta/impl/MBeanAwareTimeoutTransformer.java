@@ -20,8 +20,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.Set;
 
+import javassist.ByteArrayClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.LoaderClassPath;
 import javassist.bytecode.Descriptor;
 
 /**
@@ -43,11 +45,18 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        
         try {
             if (classesToTransform.contains(className)) {
                 Log.get().log("%s asked to transform %s", getClass().getSimpleName(), className);
-                ClassPool defaultPool = ClassPool.getDefault();
-                CtClass cc = defaultPool.get(Descriptor.toJavaName(className));
+                ClassPool classPool = new ClassPool(true);
+                // in OSGi environments access is automatically permitted to all classes, even for a Java agent
+                // therefore we need to adjust the default class path
+                // 1. append all classes accessible to the specified class loader
+                classPool.appendClassPath(new LoaderClassPath(loader));
+                // 2. insert the current definition of the class
+                classPool.insertClassPath(new ByteArrayClassPath(Descriptor.toJavaName(className), classfileBuffer));
+                CtClass cc = classPool.get(Descriptor.toJavaName(className));
                 if ( cc == null ) {
                     Log.get().log("Could not find a class for %s in the default class pool, skipping transformation", className);
                 } else {

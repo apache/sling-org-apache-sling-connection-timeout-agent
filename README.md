@@ -4,14 +4,7 @@ This module is part of the [Apache Sling](https://sling.apache.org) project.
 
 This module provides a java agent that uses the [instrumentation API](https://docs.oracle.com/javase/7/docs/api/java/lang/instrument/package-summary.html) to add connect and read timeouts to `connect` made via HTTP or HTTPs. It only applies these timeouts if none were set explicitly.
 
-The agent is intended as an additional layer of control to use when running untrusted client code that may make calls without explicitly setting timeouts. It is always recommended to set timeouts in client code, rather than relying on this agent.
-
-It currently supports setting timeouts for HTTP connections done using:
-
-* [java.net.URL](https://docs.oracle.com/javase/7/docs/api/java/net/URL.html) and/or [java.net.URLConnection](https://docs.oracle.com/javase/7/docs/api/java/net/URLConnection.html)
-* [Apache Commons HttpClient 3.x](https://hc.apache.org/httpclient-3.x/)
-* [Apache HttpComponents Client 4.x](https://hc.apache.org/httpcomponents-client-ga/)
-* [OK Http](https://square.github.io/okhttp/)
+End-user documentation can be found on the Apache Sling Website in the [Connection Timeout Agent](https://sling.apache.org/documentation/bundles/connection-timeout-agent.html) section.
 
 ## Validation
 
@@ -43,13 +36,3 @@ In contrast, the execution below should succeed:
 ```
 java -javaagent:target/org.apache.sling.connection-timeout-agent-0.0.1-SNAPSHOT-jar-with-dependencies.jar=1000,1000 -cp target/test-classes:target/it-dependencies/* org.apache.sling.cta.impl.HttpClientLauncher https://sling.apache.org JavaNet
 ```
-
-To use this in your own project you should 
-
-## Tested platforms
-
-* openjdk version "1.8.0_212"
-* openjdk version "11.0.2" 2019-01-15
-* commons-httpclient 3.1
-* httpclient 4.5.4
-* okhttp 3.14.2

@@ -26,8 +26,15 @@
         <version>35</version>
         <relativePath/>
     </parent>
+    <name>Apache Sling Connection Timeout Agent</name>
     <artifactId>org.apache.sling.connection-timeout-agent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    
+    <scm>
+        <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-org-apache-sling-connection-timeout-agent.git</connection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-org-apache-sling-connection-timeout-agent.git</developerConnection>
+        <url>https://gitbox.apache.org/repos/asf?p=sling-org-apache-sling-connection-timeout-agent.git</url>        
+    </scm>
 
     <build>
         <plugins>

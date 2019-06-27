@@ -57,13 +57,9 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
                 // 2. insert the current definition of the class
                 classPool.insertClassPath(new ByteArrayClassPath(Descriptor.toJavaName(className), classfileBuffer));
                 CtClass cc = classPool.get(Descriptor.toJavaName(className));
-                if ( cc == null ) {
-                    Log.get().log("Could not find a class for %s in the default class pool, skipping transformation", className);
-                } else {
-                    classfileBuffer = doTransformClass(cc);
-                    Log.get().log("Transformation of %s complete", className);
-                    this.agentInfo.registerTransformedClass(className);
-                }
+                classfileBuffer = doTransformClass(cc);
+                Log.get().log("Transformation of %s complete", className);
+                this.agentInfo.registerTransformedClass(className);
             }
             return classfileBuffer;
         } catch (Exception e) {

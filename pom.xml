@@ -176,6 +176,14 @@
             <version>6.0.3</version>
             <scope>test</scope>
         </dependency>
+        <!-- jacoco agent is manually added to the tests -->
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <version>0.8.4</version>
+            <scope>test</scope>
+            <classifier>runtime</classifier>
+        </dependency>
     </dependencies>
     <properties>
         <pax-exam.version>4.13.0</pax-exam.version>

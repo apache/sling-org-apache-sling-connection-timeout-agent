@@ -64,6 +64,8 @@ class AgentLauncher {
         ProcessBuilder pb = new ProcessBuilder(
             javaExe.toString(),
             "-showversion",
+            // order is importat - jacoco must come first for instrumentation to happen
+            "-javaagent:target/it-dependencies/org.jacoco.agent-runtime.jar=destfile=target/jacoco-it.exec",
             "-javaagent:" + jar +"=" + timeouts.agentConnectTimeout.toMillis() +"," + timeouts.agentReadTimeout.toMillis()+",v",
             "-cp",
             classPath,

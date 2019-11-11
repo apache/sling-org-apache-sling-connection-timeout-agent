@@ -41,6 +41,8 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
         this.agentInfo = agent;
         this.classesToTransform = classesToTransform;
         this.agentInfo.registerTransformer(getClass());
+
+        Log.get().log("%s configured to transform the following classes: %s", getClass().getSimpleName(), this.classesToTransform);
     }
 
     @Override
@@ -60,6 +62,8 @@ public abstract class MBeanAwareTimeoutTransformer implements ClassFileTransform
                 classfileBuffer = doTransformClass(cc);
                 Log.get().log("Transformation of %s complete", className);
                 this.agentInfo.registerTransformedClass(className);
+            } else {
+                Log.get().trace("%s did not transform %s as it was not part of the classes it handles", getClass().getSimpleName(), className);
             }
             return classfileBuffer;
         } catch (Exception e) {

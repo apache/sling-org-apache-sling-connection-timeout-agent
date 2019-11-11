@@ -40,7 +40,11 @@ abstract class Log {
      * @param spec the logger spec, <tt>v</tt> for a console log, anything else for a no-op log
      */
     public static void configure(String spec) {
-        INSTANCE = "v".equals(spec) ? new ConsoleLog() : new NoopLog();
+
+        boolean isVerbose = "v".equals(spec);
+        boolean isExtraVerbose = "vv".equals(spec);
+
+        INSTANCE = isVerbose || isExtraVerbose ? new ConsoleLog(isExtraVerbose) : new NoopLog();
     }
     
     /**
@@ -73,6 +77,8 @@ abstract class Log {
      */
     public abstract void log(String msg, Object... args);
     
+    public abstract void trace(String msg, Object... args);
+
     /**
      * Prints the throwable stack trace and throws a <tt>RuntimeException</tt>
      * 
@@ -85,11 +91,25 @@ abstract class Log {
 
         private static final String LOG_ENTRY_PREFIX = "[AGENT] ";
 
+        private final boolean trace;
+
+        ConsoleLog(boolean trace) {
+            this.trace = trace;
+        }
+
         @Override
         public void log(String msg, Object... args) {
             System.out.format(LOG_ENTRY_PREFIX + msg + " %n", args); // NOSONAR - this is a logger, OK to use System.out
         }
         
+        @Override
+        public void trace(String msg, Object... args) {
+            if ( !trace )
+                return;
+
+            log(msg, args);
+        }
+
         @Override
         public void fatal(String msg, Throwable t) {
             // ensure _something_ is printed, throwable might not be printed
@@ -108,6 +128,11 @@ abstract class Log {
         
         @Override
         public void fatal(String message, Throwable t) {
+            // empty by design
+        }
+
+        @Override
+        public void trace(String msg, Object... args) {
             // empty by design
         }
     }

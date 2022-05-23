@@ -66,12 +66,12 @@ public class OsgiIT {
                 
         if ( agentCandidates.size() != 1 )
             throw new RuntimeException("Expected exactly one agent jar, but found " + agentCandidates);
-        
+
         return options(
-            junitBundles(),
-            mavenBundle("org.apache.httpcomponents", "httpcore-osgi", "4.4.12"),
-            mavenBundle("org.apache.httpcomponents", "httpclient-osgi", "4.5.10"),
-            vmOption("-javaagent:" + agentCandidates.get(0) +"=1,1,v")
+                mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore-osgi").versionAsInProject(),
+                mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient-osgi").versionAsInProject(),
+                junitBundles(),
+                vmOption("-javaagent:" + agentCandidates.get(0) + "=1,1,v")
         );
     }
 

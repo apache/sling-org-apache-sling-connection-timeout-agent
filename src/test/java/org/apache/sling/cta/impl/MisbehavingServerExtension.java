@@ -17,7 +17,12 @@
 package org.apache.sling.cta.impl;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -49,11 +54,15 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
+    @Override
     public int getLocalPort() {
         return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
     }
     
     private Server server;
+    
+    private ServerSocket ss;
+    private List<Socket> sockets = new ArrayList<>();
     
     private Duration handleDelay = DEFAULT_HANDLE_DELAY;
     
@@ -101,21 +110,70 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
         });
         
         server.start();
+        
+        // an undocumented feature of ServerSocket is that the backlog size is quietly adjusted 
+        // to be at least 50
+        int backlog = 50;
+        
+        ss = new ServerSocket(0, backlog);
+        
+        CountDownLatch waitForConnection = new CountDownLatch(1);
+        
+        new Thread(() -> {
+            try {
+                // completely tie up the server: 1 active connection + backlog full
+                for (int i = 0; i < backlog + 1; i++) {
+                    sockets.add(new Socket("localhost", ss.getLocalPort()));
+                }
+                logger.info("Keeping connections to port {} unavailable" , ss.getLocalPort());
+                waitForConnection.countDown();
+                // Keep the connection open to fill the backlog
+                Thread.sleep(Long.MAX_VALUE);
+            } catch ( InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                logger.info("Failed connecting to server", e);
+            }
+        }).start();
+        
+        waitForConnection.await();
     }
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        if ( server == null )
-            return;
-        try {
-            server.stop();
-        } catch (Exception e) {
-            logger.info("Failed shutting down server", e);
+        if ( server != null ) {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                logger.info("Failed shutting down server", e);
+            }
         }
+        
+        if (ss != null) {
+            try {
+                ss.close();
+            } catch (IOException e) {
+                logger.info("Failed closing server socket", e);
+            }
+        }
+        
+        for (Socket s : sockets) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                logger.info("Failed closing socket", e);
+            }
+        }
+        sockets.clear();
     }
     
     @Override
     public void setHandleDelay(Duration handleDelay) {
         this.handleDelay = handleDelay;
+    }
+    
+    @Override
+    public int getConnectTimeoutLocalPort() {
+        return ss.getLocalPort();
     }
 }

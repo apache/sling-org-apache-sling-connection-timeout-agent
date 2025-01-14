@@ -42,4 +42,6 @@ public interface MisbehavingServerControl {
      * @param handleDelay the new duration
      */
     void setHandleDelay(Duration handleDelay);
+    
+    int getConnectTimeoutLocalPort();
 }

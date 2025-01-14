@@ -76,7 +76,7 @@ public class AgentIT {
         errorDescriptors.put(JavaNet, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "Read timed out"));
         errorDescriptors.put(HC3, new ErrorDescriptor(ConnectTimeoutException.class, "The host did not accept the connection within timeout of 3000 ms", "Read timed out"));
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
-                "Connect to repo1.maven.org:81 \\[.*\\] failed: connect timed out", "Read timed out"));
+                "Connect to localhost:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
         errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "timeout"));
     }
 
@@ -96,7 +96,7 @@ public class AgentIT {
      */
     static List<Arguments> argumentsMatrix() {
         
-        List<Arguments> args = new ArrayList<Arguments>();
+        List<Arguments> args = new ArrayList<>();
         
         TestTimeouts clientLower = new TestTimeouts.Builder()
             .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
@@ -112,23 +112,18 @@ public class AgentIT {
 
     
     /**
-     * Validates that connecting to a unaccessible port on an existing port fails with a connect 
+     * Validates that connecting to a unaccessible port on localhost fails with a connect 
      * timeout exception
-     * 
-     * <p>It is surprisingly hard to simulate a connnection timeout. The most reliable way seems to
-     * be to get a firewall to drop packets, but this is very hard to do portably and safely
-     * in a unit test. The least bad possible solution is to access an URL that we know will timeout
-     * and that is able to sustain additional traffic. Maven Central is a good candidate for that.</p>
      * 
      * @throws IOException various I/O problems 
      */
     @ParameterizedTest
     @MethodSource("argumentsMatrix")
-    public void connectTimeout(ClientType clientType, TestTimeouts timeouts) throws IOException {
+    public void connectTimeout(ClientType clientType, TestTimeouts timeouts, MisbehavingServerControl server) throws IOException {
 
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),  
-            () -> runTest("http://repo1.maven.org:81", clientType, timeouts, false));
+            () -> runTest("http://localhost:" + server.getConnectTimeoutLocalPort(), clientType, timeouts, false));
         
         assertEquals(ed.connectTimeoutClass.getName(), error.className);
         assertTrue(error.message.matches(ed.connectTimeoutMessageRegex), 

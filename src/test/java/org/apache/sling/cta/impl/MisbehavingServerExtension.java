@@ -115,6 +115,8 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
         // to be at least 50
         int backlog = 50;
         
+        // create a server socket that will not accept connections. We do this by controlling the 
+        // backlog size and making sure that it is full before running the test
         ss = new ServerSocket(0, backlog);
         
         CountDownLatch waitForConnection = new CountDownLatch(1);

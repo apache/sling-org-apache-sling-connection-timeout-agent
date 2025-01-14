@@ -43,5 +43,10 @@ public interface MisbehavingServerControl {
      */
     void setHandleDelay(Duration handleDelay);
     
+    /**
+     * Returns the port on which a local server that does not answer to connections is bound
+     * 
+     * @return the port
+     */
     int getConnectTimeoutLocalPort();
 }

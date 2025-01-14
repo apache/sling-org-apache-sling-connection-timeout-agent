@@ -81,7 +81,7 @@ public class OsgiIT {
         try ( CloseableHttpClient httpclient = HttpClients.createDefault() ) {
             // the used host does not really matter, the connect timeout of 1 ms
             // should kick in almost instantly
-            HttpGet get = new HttpGet("https://repo1.maven.org/");
+            HttpGet get = new HttpGet("https://sling.apache.org/");
             try ( CloseableHttpResponse response = httpclient.execute(get)) {
                 fail("Request should have failed");
             } 

@@ -69,6 +69,7 @@ public class OsgiIT {
         
         return options(
             junitBundles(),
+            mavenBundle("org.apache.felix", "org.apache.felix.configadmin", "1.9.26"),
             mavenBundle("org.apache.httpcomponents", "httpcore-osgi", "4.4.12"),
             mavenBundle("org.apache.httpcomponents", "httpclient-osgi", "4.5.10"),
             vmOption("-javaagent:" + agentCandidates.get(0) +"=1,1,v")

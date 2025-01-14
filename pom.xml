@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.sling</groupId>
         <artifactId>sling</artifactId>
-        <version>35</version>
+        <version>52</version>
         <relativePath />
     </parent>
     <name>Apache Sling Connection Timeout Agent</name>
@@ -101,7 +101,8 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.24.0-GA</version>
+            <version>3.30.2-GA</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -117,13 +118,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.4.2</version>
+            <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>5.4.2</version>
+            <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -180,12 +181,13 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
-            <version>0.8.4</version>
+            <version>0.8.12</version>
             <scope>test</scope>
             <classifier>runtime</classifier>
         </dependency>
     </dependencies>
     <properties>
         <pax-exam.version>4.14.0</pax-exam.version>
+        <sling.java.version>8</sling.java.version>
     </properties>
 </project>

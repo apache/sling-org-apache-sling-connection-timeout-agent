@@ -17,6 +17,8 @@
 package org.apache.sling.cta.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
@@ -87,7 +89,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
         // reset the delay before each execution to make test logic simpler 
         handleDelay = DEFAULT_HANDLE_DELAY;
         
-        server = new Server(0);
+        server = new Server(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         server.setHandler(new AbstractHandler() {
             
             @Override
@@ -117,7 +119,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
         
         // create a server socket that will not accept connections. We do this by controlling the 
         // backlog size and making sure that it is full before running the test
-        ss = new ServerSocket(0, backlog);
+        ss = new ServerSocket(0, backlog, InetAddress.getLoopbackAddress());
         
         CountDownLatch waitForConnection = new CountDownLatch(1);
         
@@ -125,7 +127,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
             try {
                 // completely tie up the server: 1 active connection + backlog full
                 for (int i = 0; i < backlog + 1; i++) {
-                    sockets.add(new Socket("localhost", ss.getLocalPort()));
+                    sockets.add(new Socket("127.0.0.1", ss.getLocalPort()));
                 }
                 logger.info("Keeping connections to port {} unavailable" , ss.getLocalPort());
                 waitForConnection.countDown();

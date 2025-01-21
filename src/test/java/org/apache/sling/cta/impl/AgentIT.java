@@ -77,7 +77,7 @@ public class AgentIT {
         errorDescriptors.put(JavaNet, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "Read timed out"));
         errorDescriptors.put(HC3, new ErrorDescriptor(ConnectTimeoutException.class, "The host did not accept the connection within timeout of 3000 ms", "Read timed out"));
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
-                "Connect to localhost:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
+                "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
         errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "timeout"));
     }
 
@@ -126,7 +126,7 @@ public class AgentIT {
 
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),  
-            () -> runTest("http://localhost:" + server.getConnectTimeoutLocalPort(), clientType, timeouts, false));
+            () -> runTest("http://127.0.0.1:" + server.getConnectTimeoutLocalPort(), clientType, timeouts, false));
         
         assertEquals(ed.connectTimeoutClass.getName(), error.className);
         assertTrue(error.message.matches(ed.connectTimeoutMessageRegex), 
@@ -146,7 +146,7 @@ public class AgentIT {
         
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),
-           () -> runTest("http://localhost:" + server.getLocalPort(), clientType, timeouts, false));
+           () -> runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, timeouts, false));
 
         assertEquals(SocketTimeoutException.class.getName(), error.className);
         assertEquals(ed.readTimeoutMessage, error.message);
@@ -161,7 +161,7 @@ public class AgentIT {
         server.setHandleDelay(Duration.ofMillis(100));
         
         assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),
-                () ->runTest("http://localhost:" + server.getLocalPort(), clientType, TestTimeouts.DEFAULT, true));
+                () ->runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, TestTimeouts.DEFAULT, true));
     }
 
     private RecordedThrowable runTest(String urlSpec, ClientType clientType, TestTimeouts timeouts, boolean expectSuccess) throws IOException, InterruptedException {

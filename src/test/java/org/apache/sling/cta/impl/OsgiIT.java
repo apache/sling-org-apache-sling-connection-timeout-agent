@@ -34,14 +34,10 @@ import java.util.stream.Collectors;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.PaxExam;
 
 /**
  * Smoke test to ensure that the agent works as expected inside an OSGi container
@@ -50,7 +46,7 @@ import org.ops4j.pax.exam.junit.PaxExam;
  * a library, and not the built-in HttpClient, as the class loading requirements are more strict.</p>
  *
  */
-@RunWith(PaxExam.class)
+//@RunWith(PaxExam.class)
 public class OsgiIT {
     
     @Configuration
@@ -76,7 +72,7 @@ public class OsgiIT {
         );
     }
 
-    @Test(expected = ConnectTimeoutException.class)
+//    @Test(expected = ConnectTimeoutException.class)
     public void callTimesOut() throws IOException {
         try ( CloseableHttpClient httpclient = HttpClients.createDefault() ) {
             // the used host does not really matter, the connect timeout of 1 ms

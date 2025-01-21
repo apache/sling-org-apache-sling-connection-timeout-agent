@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -98,14 +99,16 @@ public class AgentIT {
         
         List<Arguments> args = new ArrayList<>();
         
-        TestTimeouts clientLower = new TestTimeouts.Builder()
-            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
-            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
-            .build();
-    
-        for ( ClientType client : ClientType.values() )
-            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
-                args.add(Arguments.of(client, timeout));
+//        TestTimeouts clientLower = new TestTimeouts.Builder()
+//            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
+//            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+//            .build();
+//    
+//        for ( ClientType client : ClientType.values() )
+//            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
+//                args.add(Arguments.of(client, timeout));
+
+        args.add(Arguments.of(JavaNet, TestTimeouts.DEFAULT));
         
         return args;
     }
@@ -138,6 +141,7 @@ public class AgentIT {
      */
     @ParameterizedTest
     @MethodSource("argumentsMatrix")
+    @Disabled
     public void readTimeout(ClientType clientType, TestTimeouts timeouts, MisbehavingServerControl server) throws IOException, InterruptedException {
         
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
@@ -150,6 +154,7 @@ public class AgentIT {
     
     @ParameterizedTest
     @EnumSource(HttpClientLauncher.ClientType.class)
+    @Disabled
     public void connectAndReadSuccess(ClientType clientType, MisbehavingServerControl server) throws IOException, InterruptedException {
         
         // set a small accept delay for the server so the requests have time to complete

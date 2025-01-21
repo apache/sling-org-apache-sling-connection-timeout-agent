@@ -108,8 +108,8 @@ public class AgentIT {
 //            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
 //                args.add(Arguments.of(client, timeout));
 
-        args.add(Arguments.of(JavaNet, TestTimeouts.DEFAULT));
-        args.add(Arguments.of(JavaNet, clientLower));
+        args.add(Arguments.of(HC4, TestTimeouts.DEFAULT));
+        args.add(Arguments.of(HC4, clientLower));
         
         return args;
     }

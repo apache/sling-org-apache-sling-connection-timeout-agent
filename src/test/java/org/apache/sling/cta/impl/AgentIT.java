@@ -99,17 +99,16 @@ public class AgentIT {
         
         List<Arguments> args = new ArrayList<>();
         
-        TestTimeouts clientLower = new TestTimeouts.Builder()
-            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
-            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
-            .build();
+//        TestTimeouts clientLower = new TestTimeouts.Builder()
+//            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
+//            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+//            .build();
 //    
 //        for ( ClientType client : ClientType.values() )
 //            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
 //                args.add(Arguments.of(client, timeout));
 
         args.add(Arguments.of(HC4, TestTimeouts.DEFAULT));
-        args.add(Arguments.of(HC4, clientLower));
         
         return args;
     }

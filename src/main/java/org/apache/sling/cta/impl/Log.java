@@ -37,7 +37,7 @@ abstract class Log {
     /**
      * Configures the global logger instance
      * 
-     * @param spec the logger spec, <tt>v</tt> for a console log, anything else for a no-op log
+     * @param spec the logger spec, <code>v</code> for a console log, anything else for a no-op log
      */
     public static void configure(String spec) {
 
@@ -70,7 +70,7 @@ abstract class Log {
      * 
      *  </p>
      *  
-     *  <p>The line separator <tt>%n</tt> is automatically appended to the message.</p>
+     *  <p>The line separator <code>%n</code> is automatically appended to the message.</p>
      * 
      * @param msg the message
      * @param args the arguments
@@ -80,9 +80,9 @@ abstract class Log {
     public abstract void trace(String msg, Object... args);
 
     /**
-     * Prints the throwable stack trace and throws a <tt>RuntimeException</tt>
+     * Prints the throwable stack trace and throws a <code>RuntimeException</code>
      * 
-     * @param message the message to include in the <tt>RuntimeException</tt>
+     * @param message the message to include in the <code>RuntimeException</code>
      * @param t the throwable to print the stack trace for 
      */
     public abstract void fatal(String message, Throwable t);

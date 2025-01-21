@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates that accessing URLs that exhibit connection problems results in a timeouts being fired when the agent is used
  * 
- * <p>This test validates that the agent works when statically loaded, i.e. with a <tt>-javaagent:</tt> flag
+ * <p>This test validates that the agent works when statically loaded, i.e. with a <code>-javaagent:</code> flag
  * passed to the JVM. As such it requires launching a new JVM instance each time, otherwise the results are
  * not valid.</p>
  * 

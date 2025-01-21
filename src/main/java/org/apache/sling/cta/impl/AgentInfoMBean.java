@@ -17,7 +17,7 @@
 package org.apache.sling.cta.impl;
 
 /**
- * Exposes runtime information about the agent using <tt>JMX</tt>.
+ * Exposes runtime information about the agent using <code>JMX</code>.
  *
  */
 public interface AgentInfoMBean {

@@ -124,9 +124,11 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
         CountDownLatch waitForConnection = new CountDownLatch(1);
         
         new Thread(() -> {
+            int activeConnection = 0;
             try {
                 // completely tie up the server: 1 active connection + backlog full
                 for (int i = 0; i < backlog + 1; i++) {
+                    activeConnection = i;
                     sockets.add(new Socket("127.0.0.1", ss.getLocalPort()));
                 }
                 logger.info("Keeping connections to port {} unavailable" , ss.getLocalPort());
@@ -136,7 +138,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
             } catch ( InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (IOException e) {
-                logger.info("Failed connecting to server", e);
+                logger.info("Failed connecting to server, active connection was {}", activeConnection, e);
             }
         }).start();
         

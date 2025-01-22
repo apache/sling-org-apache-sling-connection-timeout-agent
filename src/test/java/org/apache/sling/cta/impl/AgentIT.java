@@ -75,11 +75,11 @@ public class AgentIT {
     
     private static Map<ClientType, ErrorDescriptor> errorDescriptors = new EnumMap<>(ClientType.class);
     static {
-        errorDescriptors.put(JavaNet, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "Read timed out"));
+        errorDescriptors.put(JavaNet, new ErrorDescriptor(SocketTimeoutException.class, "[C|c]onnect timed out", "Read timed out"));
         errorDescriptors.put(HC3, new ErrorDescriptor(ConnectTimeoutException.class, "The host did not accept the connection within timeout of 3000 ms", "Read timed out"));
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
-                "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
-        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "(timeout|Read timed out)"));
+                "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: [C|c]onnect timed out", "Read timed out"));
+        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "[C|c]onnect timed out", "(timeout|Read timed out)"));
     }
 
     /**

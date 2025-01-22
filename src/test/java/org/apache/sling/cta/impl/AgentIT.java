@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -146,7 +145,6 @@ public class AgentIT {
      */
     @ParameterizedTest
     @MethodSource("argumentsMatrix")
-    @Disabled
     public void readTimeout(ClientType clientType, TestTimeouts timeouts, MisbehavingServerControl server) throws IOException, InterruptedException {
         
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
@@ -159,7 +157,6 @@ public class AgentIT {
     
     @ParameterizedTest
     @EnumSource(HttpClientLauncher.ClientType.class)
-    @Disabled
     public void connectAndReadSuccess(ClientType clientType, MisbehavingServerControl server) throws IOException, InterruptedException {
         
         // set a small accept delay for the server so the requests have time to complete

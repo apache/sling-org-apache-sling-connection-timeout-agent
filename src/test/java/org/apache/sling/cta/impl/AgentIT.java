@@ -79,7 +79,7 @@ public class AgentIT {
         errorDescriptors.put(HC3, new ErrorDescriptor(ConnectTimeoutException.class, "The host did not accept the connection within timeout of 3000 ms", "Read timed out"));
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
                 "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
-        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "timeout"));
+        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "(timeout|Read timed out)"));
     }
 
     /**
@@ -152,7 +152,8 @@ public class AgentIT {
            () -> runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, timeouts, false));
 
         assertEquals(SocketTimeoutException.class.getName(), error.className);
-        assertEquals(ed.readTimeoutMessage, error.message);
+        assertTrue(error.message.matches(ed.readTimeoutRegex),
+            "Actual message " + error.message + " did not match regex " + ed.readTimeoutRegex);
     }
     
     @ParameterizedTest

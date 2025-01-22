@@ -54,6 +54,12 @@ public class Agent {
             new HttpClient4TimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean),
             new OkHttpTimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean)
         };
+
+        try {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(agentInfoMBean, AgentInfo.NAME);
+        } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
+            Log.get().log("Failed registering MBean: %s", e.getMessage());
+        }
         
         List<String> transformerNames = new ArrayList<>();
         for ( ClassFileTransformer transformer : transformers ) {
@@ -61,12 +67,6 @@ public class Agent {
             transformerNames.add(transformer.getClass().getName());
         }
         
-        try {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(agentInfoMBean, AgentInfo.NAME);
-        } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
-            Log.get().log("Failed registering MBean: %s", e.getMessage());
-        }
-
         Log.get().log("All transformers installed");
     }
     

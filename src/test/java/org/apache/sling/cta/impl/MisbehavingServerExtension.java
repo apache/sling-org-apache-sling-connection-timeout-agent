@@ -18,7 +18,6 @@ package org.apache.sling.cta.impl;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
@@ -26,14 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -56,17 +47,10 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
-    @Override
-    public int getLocalPort() {
-        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-    }
-    
-    private Server server;
+    private DelayingHttpServer server;
     
     private ServerSocket ss;
     private List<Socket> sockets = new ArrayList<>();
-    
-    private Duration handleDelay = DEFAULT_HANDLE_DELAY;
     
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
@@ -86,31 +70,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         
-        // reset the delay before each execution to make test logic simpler 
-        handleDelay = DEFAULT_HANDLE_DELAY;
-        
-        server = new Server(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
-        server.setHandler(new AbstractHandler() {
-            
-            @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                    throws IOException, ServletException {
-                logger.info("Waiting for " + handleDelay + " before handling");
-                try {
-                    Thread.sleep(handleDelay.toMillis());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                if ( baseRequest.getHeader("User-Agent") != null )
-                    response.addHeader("Original-User-Agent", baseRequest.getHeader("User-Agent"));
-                baseRequest.setHandled(true);
-                logger.info("Handled");
-            }
-        });
-        
+        server = new DelayingHttpServer(DEFAULT_HANDLE_DELAY);
         server.start();
         
         // an undocumented feature of ServerSocket is that the backlog size is quietly adjusted 
@@ -176,7 +136,12 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     
     @Override
     public void setHandleDelay(Duration handleDelay) {
-        this.handleDelay = handleDelay;
+        server.setHandleDelay(handleDelay);
+    }
+
+    @Override
+    public int getLocalPort() {
+        return server.getLocalPort();
     }
     
     @Override

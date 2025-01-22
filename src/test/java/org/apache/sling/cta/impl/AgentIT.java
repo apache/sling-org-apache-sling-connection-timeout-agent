@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -99,16 +101,14 @@ public class AgentIT {
         
         List<Arguments> args = new ArrayList<>();
         
-//        TestTimeouts clientLower = new TestTimeouts.Builder()
-//            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
-//            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
-//            .build();
-//    
-//        for ( ClientType client : ClientType.values() )
-//            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
-//                args.add(Arguments.of(client, timeout));
-
-        args.add(Arguments.of(HC4, TestTimeouts.DEFAULT));
+        TestTimeouts clientLower = new TestTimeouts.Builder()
+            .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
+            .clientTimeouts(Duration.ofSeconds(CONNECT_TIMEOUT_SECONDS), Duration.ofSeconds(READ_TIMEOUT_SECONDS))
+            .build();
+    
+        for ( ClientType client : ClientType.values() )
+            for ( TestTimeouts timeout : new TestTimeouts[] { TestTimeouts.DEFAULT, clientLower } )
+                args.add(Arguments.of(client, timeout));
         
         return args;
     }
@@ -118,10 +118,15 @@ public class AgentIT {
      * Validates that connecting to a unaccessible port on localhost fails with a connect 
      * timeout exception
      * 
+     * <p>This test is disabled on Windows because the {@link MisbehavingServerControl} cannot generate connection
+     * timeouts. The TCP/IP stack seems to behave differently on Windows vs Linux when the backlog is full. On Linux
+     * a connection timeout is triggered, while on Windows the connection is refused.</p
+     * 
      * @throws IOException various I/O problems 
      */
     @ParameterizedTest
     @MethodSource("argumentsMatrix")
+    @DisabledOnOs(OS.WINDOWS)
     public void connectTimeout(ClientType clientType, TestTimeouts timeouts, MisbehavingServerControl server) throws IOException {
 
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);

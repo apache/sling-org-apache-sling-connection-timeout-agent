@@ -139,6 +139,7 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
                 Thread.currentThread().interrupt();
             } catch (IOException e) {
                 logger.info("Failed connecting to server, active connection was {}", activeConnection, e);
+                waitForConnection.countDown();
             }
         }).start();
         

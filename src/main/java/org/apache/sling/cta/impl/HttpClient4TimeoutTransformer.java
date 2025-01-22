@@ -21,8 +21,8 @@ import javassist.bytecode.Descriptor;
 /**
  * Sets timeouts for HTTP calls done using <em>Apache HttpComponents Client 4.x</em>
  * 
- * <p>It inserts two calls to <tt>org.apache.http.client.config.RequestConfig$Builder</tt> that set default
- * values for <tt>connectTimeout</tt> and <tt>socketTimeout</tt>.</p>
+ * <p>It inserts two calls to <code>org.apache.http.client.config.RequestConfig$Builder</code> that set default
+ * values for <code>connectTimeout</code> and <code>socketTimeout</code>.</p>
  */
 public class HttpClient4TimeoutTransformer extends UpdateFieldsInConstructorTimeoutTransformer {
 

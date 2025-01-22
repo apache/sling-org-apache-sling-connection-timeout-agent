@@ -17,16 +17,14 @@
 package org.apache.sling.cta.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -49,13 +47,10 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
-    public int getLocalPort() {
-        return ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-    }
+    private DelayingHttpServer server;
     
-    private Server server;
-    
-    private Duration handleDelay = DEFAULT_HANDLE_DELAY;
+    private ServerSocket ss;
+    private List<Socket> sockets = new ArrayList<>();
     
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
@@ -75,47 +70,82 @@ class MisbehavingServerExtension implements BeforeEachCallback, AfterEachCallbac
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         
-        // reset the delay before each execution to make test logic simpler 
-        handleDelay = DEFAULT_HANDLE_DELAY;
-        
-        server = new Server(0);
-        server.setHandler(new AbstractHandler() {
-            
-            @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                    throws IOException, ServletException {
-                logger.info("Waiting for " + handleDelay + " before handling");
-                try {
-                    Thread.sleep(handleDelay.toMillis());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                if ( baseRequest.getHeader("User-Agent") != null )
-                    response.addHeader("Original-User-Agent", baseRequest.getHeader("User-Agent"));
-                baseRequest.setHandled(true);
-                logger.info("Handled");
-            }
-        });
-        
+        server = new DelayingHttpServer(DEFAULT_HANDLE_DELAY);
         server.start();
+        
+        // an undocumented feature of ServerSocket is that the backlog size is quietly adjusted 
+        // to be at least 50
+        int backlog = 50;
+        
+        // create a server socket that will not accept connections. We do this by controlling the 
+        // backlog size and making sure that it is full before running the test
+        ss = new ServerSocket(0, backlog, InetAddress.getLoopbackAddress());
+        
+        CountDownLatch waitForConnection = new CountDownLatch(1);
+        
+        new Thread(() -> {
+            int activeConnection = 0;
+            try {
+                // completely tie up the server: 1 active connection + backlog full
+                for (int i = 0; i < backlog + 1; i++) {
+                    activeConnection = i;
+                    sockets.add(new Socket("127.0.0.1", ss.getLocalPort()));
+                }
+                logger.info("Keeping connections to port {} unavailable" , ss.getLocalPort());
+                waitForConnection.countDown();
+                // Keep the connection open to fill the backlog
+                Thread.sleep(Long.MAX_VALUE);
+            } catch ( InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                logger.info("Failed connecting to server, active connection was {}", activeConnection, e);
+                waitForConnection.countDown();
+            }
+        }).start();
+        
+        waitForConnection.await();
     }
 
     @Override
     public void afterEach(ExtensionContext context) throws Exception {
-        if ( server == null )
-            return;
-        try {
-            server.stop();
-        } catch (Exception e) {
-            logger.info("Failed shutting down server", e);
+        if ( server != null ) {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                logger.info("Failed shutting down server", e);
+            }
         }
+        
+        if (ss != null) {
+            try {
+                ss.close();
+            } catch (IOException e) {
+                logger.info("Failed closing server socket", e);
+            }
+        }
+        
+        for (Socket s : sockets) {
+            try {
+                s.close();
+            } catch (IOException e) {
+                logger.info("Failed closing socket", e);
+            }
+        }
+        sockets.clear();
     }
     
     @Override
     public void setHandleDelay(Duration handleDelay) {
-        this.handleDelay = handleDelay;
+        server.setHandleDelay(handleDelay);
+    }
+
+    @Override
+    public int getLocalPort() {
+        return server.getLocalPort();
+    }
+    
+    @Override
+    public int getConnectTimeoutLocalPort() {
+        return ss.getLocalPort();
     }
 }

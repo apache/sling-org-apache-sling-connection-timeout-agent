@@ -21,8 +21,8 @@ import javassist.bytecode.Descriptor;
 /**
  * Sets timeouts for HTTP calls done using <em>OkHttp 3.x</em>
  * 
- * <p>It inserts two calls to <tt>okhttp3.OkHttpClient$Builder</tt> that set default
- * values for <tt>connectTimeout</tt> and <tt>readTimeout</tt>.</p>
+ * <p>It inserts two calls to <code>okhttp3.OkHttpClient$Builder</code> that set default
+ * values for <code>connectTimeout</code> and <code>readTimeout</code>.</p>
  */
 public class OkHttpTimeoutTransformer extends UpdateFieldsInConstructorTimeoutTransformer {
 

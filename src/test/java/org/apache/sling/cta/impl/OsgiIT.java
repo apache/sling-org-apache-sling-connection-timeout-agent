@@ -23,20 +23,23 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -53,6 +56,8 @@ import org.ops4j.pax.exam.junit.PaxExam;
 @RunWith(PaxExam.class)
 public class OsgiIT {
     
+    private DelayingHttpServer server;
+
     @Configuration
     public Option[] config() throws IOException {
         
@@ -69,18 +74,38 @@ public class OsgiIT {
         
         return options(
             junitBundles(),
+            mavenBundle("org.apache.felix", "org.apache.felix.configadmin", "1.9.26"),
             mavenBundle("org.apache.httpcomponents", "httpcore-osgi", "4.4.12"),
             mavenBundle("org.apache.httpcomponents", "httpclient-osgi", "4.5.10"),
-            vmOption("-javaagent:" + agentCandidates.get(0) +"=1,1,v")
+            mavenBundle("org.apache.felix", "org.apache.felix.http.servlet-api", "3.0.0"),
+            mavenBundle("org.apache.felix","org.apache.felix.http.jetty","5.1.26"),
+            vmOption("-javaagent:" + agentCandidates.get(0) +"=10000,1,v") // large connect timeout, very small read timeout
         );
     }
+    
+    @Before
+    public void startHttpServer() throws Exception {
+        server = new DelayingHttpServer(Duration.ofSeconds(1));
+        server.start();
+    }
+    
+    @After
+    public void stopHttpServer() {
+        if (server != null) {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
 
-    @Test(expected = ConnectTimeoutException.class)
+    @Test(expected = SocketTimeoutException.class)
     public void callTimesOut() throws IOException {
         try ( CloseableHttpClient httpclient = HttpClients.createDefault() ) {
             // the used host does not really matter, the connect timeout of 1 ms
             // should kick in almost instantly
-            HttpGet get = new HttpGet("https://repo1.maven.org/");
+            HttpGet get = new HttpGet("http://127.0.0.1:" + server.getLocalPort() + "/");
             try ( CloseableHttpResponse response = httpclient.execute(get)) {
                 fail("Request should have failed");
             } 

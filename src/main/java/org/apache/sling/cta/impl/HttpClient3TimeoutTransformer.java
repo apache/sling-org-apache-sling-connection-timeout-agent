@@ -25,8 +25,8 @@ import javassist.bytecode.Descriptor;
 /**
  * Sets timeouts for HTTP calls done using <em>Apache Commons HttpClient 3.x</em>
  * 
- * <p>It inserts two calls in <tt>org.apache.commons.httpclient.params.DefaultHttpParamsFactory.createParams</tt> that set
- * default values for <tt>http.connection.timeout</tt> and <tt>http.socket.timeout</tt>.</p>
+ * <p>It inserts two calls in <code>org.apache.commons.httpclient.params.DefaultHttpParamsFactory.createParams</code> that set
+ * default values for <code>http.connection.timeout</code> and <code>http.socket.timeout</code>.</p>
  */
 public class HttpClient3TimeoutTransformer extends MBeanAwareTimeoutTransformer {
     

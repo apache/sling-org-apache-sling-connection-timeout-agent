@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -52,7 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates that accessing URLs that exhibit connection problems results in a timeouts being fired when the agent is used
  * 
- * <p>This test validates that the agent works when statically loaded, i.e. with a <tt>-javaagent:</tt> flag
+ * <p>This test validates that the agent works when statically loaded, i.e. with a <code>-javaagent:</code> flag
  * passed to the JVM. As such it requires launching a new JVM instance each time, otherwise the results are
  * not valid.</p>
  * 
@@ -76,8 +78,8 @@ public class AgentIT {
         errorDescriptors.put(JavaNet, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "Read timed out"));
         errorDescriptors.put(HC3, new ErrorDescriptor(ConnectTimeoutException.class, "The host did not accept the connection within timeout of 3000 ms", "Read timed out"));
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
-                "Connect to repo1.maven.org:81 \\[.*\\] failed: connect timed out", "Read timed out"));
-        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "timeout"));
+                "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: connect timed out", "Read timed out"));
+        errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "connect timed out", "(timeout|Read timed out)"));
     }
 
     /**
@@ -96,7 +98,7 @@ public class AgentIT {
      */
     static List<Arguments> argumentsMatrix() {
         
-        List<Arguments> args = new ArrayList<Arguments>();
+        List<Arguments> args = new ArrayList<>();
         
         TestTimeouts clientLower = new TestTimeouts.Builder()
             .agentTimeouts(Duration.ofMinutes(1), Duration.ofMinutes(1))
@@ -112,23 +114,23 @@ public class AgentIT {
 
     
     /**
-     * Validates that connecting to a unaccessible port on an existing port fails with a connect 
+     * Validates that connecting to a unaccessible port on localhost fails with a connect 
      * timeout exception
      * 
-     * <p>It is surprisingly hard to simulate a connnection timeout. The most reliable way seems to
-     * be to get a firewall to drop packets, but this is very hard to do portably and safely
-     * in a unit test. The least bad possible solution is to access an URL that we know will timeout
-     * and that is able to sustain additional traffic. Maven Central is a good candidate for that.</p>
+     * <p>This test is disabled on Windows because the {@link MisbehavingServerControl} cannot generate connection
+     * timeouts. The TCP/IP stack seems to behave differently on Windows vs Linux when the backlog is full. On Linux
+     * a connection timeout is triggered, while on Windows the connection is refused.</p
      * 
      * @throws IOException various I/O problems 
      */
     @ParameterizedTest
     @MethodSource("argumentsMatrix")
-    public void connectTimeout(ClientType clientType, TestTimeouts timeouts) throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    public void connectTimeout(ClientType clientType, TestTimeouts timeouts, MisbehavingServerControl server) throws IOException {
 
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),  
-            () -> runTest("http://repo1.maven.org:81", clientType, timeouts, false));
+            () -> runTest("http://127.0.0.1:" + server.getConnectTimeoutLocalPort(), clientType, timeouts, false));
         
         assertEquals(ed.connectTimeoutClass.getName(), error.className);
         assertTrue(error.message.matches(ed.connectTimeoutMessageRegex), 
@@ -147,10 +149,11 @@ public class AgentIT {
         
         ErrorDescriptor ed =  requireNonNull(errorDescriptors.get(clientType), "Unhandled clientType " + clientType);
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),
-           () -> runTest("http://localhost:" + server.getLocalPort(), clientType, timeouts, false));
+           () -> runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, timeouts, false));
 
         assertEquals(SocketTimeoutException.class.getName(), error.className);
-        assertEquals(ed.readTimeoutMessage, error.message);
+        assertTrue(error.message.matches(ed.readTimeoutRegex),
+            "Actual message " + error.message + " did not match regex " + ed.readTimeoutRegex);
     }
     
     @ParameterizedTest
@@ -161,7 +164,7 @@ public class AgentIT {
         server.setHandleDelay(Duration.ofMillis(100));
         
         assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),
-                () ->runTest("http://localhost:" + server.getLocalPort(), clientType, TestTimeouts.DEFAULT, true));
+                () ->runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, TestTimeouts.DEFAULT, true));
     }
 
     private RecordedThrowable runTest(String urlSpec, ClientType clientType, TestTimeouts timeouts, boolean expectSuccess) throws IOException, InterruptedException {

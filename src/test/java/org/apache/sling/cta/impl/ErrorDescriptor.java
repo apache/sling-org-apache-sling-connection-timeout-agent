@@ -26,12 +26,12 @@ import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 class ErrorDescriptor {
     Class<? extends IOException> connectTimeoutClass;
     String connectTimeoutMessageRegex;
-    String readTimeoutMessage;
+    String readTimeoutRegex;
 
     public ErrorDescriptor(Class<? extends IOException> connectTimeoutClass, String connectTimeoutMessageRegex,
-            String readTimeoutMessage) {
+            String readTimeoutRegex) {
         this.connectTimeoutClass = connectTimeoutClass;
         this.connectTimeoutMessageRegex = connectTimeoutMessageRegex;
-        this.readTimeoutMessage = readTimeoutMessage;
+        this.readTimeoutRegex = readTimeoutRegex;
     }
 }

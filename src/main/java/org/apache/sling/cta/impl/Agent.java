@@ -52,7 +52,9 @@ public class Agent {
             new JavaNetTimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean),
             new HttpClient3TimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean),
             new HttpClient4TimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean),
-            new OkHttpTimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean)
+            new OkHttpTimeoutTransformer(connectTimeout, readTimeout, agentInfoMBean),
+            new JdkHttpClientBuilderTimeoutTransformer(connectTimeout, agentInfoMBean),
+            new JdkHttpRequestBuilderTimeoutTransformer(readTimeout, agentInfoMBean)
         };
 
         try {

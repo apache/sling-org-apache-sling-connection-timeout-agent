@@ -78,7 +78,7 @@ public class OsgiIT {
             mavenBundle("org.apache.httpcomponents", "httpcore-osgi", "4.4.12"),
             mavenBundle("org.apache.httpcomponents", "httpclient-osgi", "4.5.10"),
             mavenBundle("org.apache.felix", "org.apache.felix.http.servlet-api", "3.0.0"),
-            mavenBundle("org.apache.felix","org.apache.felix.http.jetty","5.1.26"),
+            mavenBundle("org.apache.felix","org.apache.felix.http.jetty","4.2.32"),
             vmOption("-javaagent:" + agentCandidates.get(0) +"=10000,1,v") // large connect timeout, very small read timeout
         );
     }

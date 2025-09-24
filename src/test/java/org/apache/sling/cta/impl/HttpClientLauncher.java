@@ -21,7 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -52,10 +56,11 @@ import okhttp3.Response;
 public class HttpClientLauncher {
     
     public enum ClientType {
-        JavaNet(HttpClientLauncher::runUsingJavaNet), 
+        JavaNet(HttpClientLauncher::runUsingJavaNet),
         HC3(HttpClientLauncher::runUsingHttpClient3),
         HC4(HttpClientLauncher::runUsingHttpClient4),
-        OkHttp(HttpClientLauncher::runUsingOkHttp);
+        OkHttp(HttpClientLauncher::runUsingOkHttp),
+        JdkHttpClient(HttpClientLauncher::runUsingJdkHttpClient);
         
         private final HttpConsumer consumer;
 
@@ -134,6 +139,32 @@ public class HttpClientLauncher {
                 log(k + " : " + v);
             });
         }
+    }
+
+    private static void runUsingJdkHttpClient(String targetUrl, int connectTimeoutMillis, int readTimeoutMillis) throws IOException, URISyntaxException, InterruptedException {
+
+        java.net.http.HttpClient.Builder clientBuilder = java.net.http.HttpClient.newBuilder();
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
+
+        if (connectTimeoutMillis > 0) {
+            clientBuilder.connectTimeout(Duration.ofMillis(connectTimeoutMillis));
+        }
+        if (readTimeoutMillis > 0) {
+            requestBuilder.timeout(Duration.ofMillis(readTimeoutMillis));
+        }
+
+        requestBuilder.uri(new URI(targetUrl));
+
+        java.net.http.HttpClient client = clientBuilder.build();
+        HttpRequest request = requestBuilder.build();
+
+        log("HttpClient timeouts: connection: %d, request: %d",
+                client.connectTimeout().orElse(Duration.ZERO).toMillis(),
+                request.timeout().orElse(Duration.ZERO).toMillis());
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        log("HttpClient response status: %s", response.statusCode());
     }
 
 

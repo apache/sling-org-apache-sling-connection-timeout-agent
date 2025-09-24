@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.HC3;
 import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.HC4;
 import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.JavaNet;
+import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.JdkHttpClient;
 import static org.apache.sling.cta.impl.HttpClientLauncher.ClientType.OkHttp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
@@ -29,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,6 +83,7 @@ public class AgentIT {
         errorDescriptors.put(HC4, new ErrorDescriptor(org.apache.http.conn.ConnectTimeoutException.class, 
                 "Connect to 127\\.0\\.0\\.1:[0-9]+ \\[.*\\] failed: [C|c]onnect timed out", "Read timed out"));
         errorDescriptors.put(OkHttp, new ErrorDescriptor(SocketTimeoutException.class, "[C|c]onnect timed out", "(timeout|Read timed out)"));
+        errorDescriptors.put(JdkHttpClient, new ErrorDescriptor(HttpConnectTimeoutException.class, "HTTP connect timed out", HttpTimeoutException.class, "request timed out"));
     }
 
     /**
@@ -151,7 +155,7 @@ public class AgentIT {
         RecordedThrowable error = assertTimeout(ofSeconds(EXECUTION_TIMEOUT_SECONDS),
            () -> runTest("http://127.0.0.1:" + server.getLocalPort(), clientType, timeouts, false));
 
-        assertEquals(SocketTimeoutException.class.getName(), error.className);
+        assertEquals(ed.readTimeoutClass.getName(), error.className);
         assertTrue(error.message.matches(ed.readTimeoutRegex),
             "Actual message " + error.message + " did not match regex " + ed.readTimeoutRegex);
     }

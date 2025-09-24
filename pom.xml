@@ -188,6 +188,6 @@
     </dependencies>
     <properties>
         <pax-exam.version>4.14.0</pax-exam.version>
-        <sling.java.version>8</sling.java.version>
+        <sling.java.version>11</sling.java.version>
     </properties>
 </project>

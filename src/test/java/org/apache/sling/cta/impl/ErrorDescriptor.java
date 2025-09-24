@@ -17,6 +17,7 @@
 package org.apache.sling.cta.impl;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 
@@ -26,12 +27,18 @@ import org.apache.sling.cta.impl.HttpClientLauncher.ClientType;
 class ErrorDescriptor {
     Class<? extends IOException> connectTimeoutClass;
     String connectTimeoutMessageRegex;
+    Class<? extends IOException> readTimeoutClass;
     String readTimeoutRegex;
 
+    public ErrorDescriptor(Class<? extends IOException> connectTimeoutClass, String connectTimeoutMessageRegex, String readTimeoutRegex) {
+        this(connectTimeoutClass, connectTimeoutMessageRegex, SocketTimeoutException.class, readTimeoutRegex);
+    }
+
     public ErrorDescriptor(Class<? extends IOException> connectTimeoutClass, String connectTimeoutMessageRegex,
-            String readTimeoutRegex) {
+                           Class<? extends IOException> readTimeoutClass, String readTimeoutRegex) {
         this.connectTimeoutClass = connectTimeoutClass;
         this.connectTimeoutMessageRegex = connectTimeoutMessageRegex;
+        this.readTimeoutClass = readTimeoutClass;
         this.readTimeoutRegex = readTimeoutRegex;
     }
 }

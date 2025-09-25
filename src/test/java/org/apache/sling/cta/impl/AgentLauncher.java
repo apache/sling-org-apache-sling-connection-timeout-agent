@@ -1,18 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.cta.impl;
 
@@ -49,45 +51,46 @@ class AgentLauncher {
         this.stdout = stdout;
         this.stderr = stderr;
     }
-    
+
     public Process launch() throws IOException {
-        
+
         Path jar = Files.list(Paths.get("target"))
-            .filter( p -> p.getFileName().toString().endsWith("-jar-with-dependencies.jar"))
-            .findFirst()
-            .orElseThrow( () -> new IllegalStateException("Did not find the agent jar. Did you run mvn package first?"));
-        
+                .filter(p -> p.getFileName().toString().endsWith("-jar-with-dependencies.jar"))
+                .findFirst()
+                .orElseThrow(
+                        () -> new IllegalStateException("Did not find the agent jar. Did you run mvn package first?"));
+
         String classPath = buildClassPath();
 
         String javaHome = System.getProperty("java.home");
         Path javaExe = Paths.get(javaHome, "bin", "java");
         ProcessBuilder pb = new ProcessBuilder(
-            javaExe.toString(),
-            "-showversion",
-            // order is importat - jacoco must come first for instrumentation to happen
-            "-javaagent:target/it-dependencies/org.jacoco.agent-runtime.jar=destfile=target/jacoco-it.exec",
-            "-javaagent:" + jar +"=" + timeouts.agentConnectTimeout.toMillis() +"," + timeouts.agentReadTimeout.toMillis()+",v",
-            "-cp",
-            classPath,
-            HttpClientLauncher.class.getName(),
-            url.toString(),
-            clientType.toString(),
-            String.valueOf(timeouts.clientConnectTimeout.toMillis()),
-            String.valueOf(timeouts.clientReadTimeout.toMillis())
-        );
-        
+                javaExe.toString(),
+                "-showversion",
+                // order is importat - jacoco must come first for instrumentation to happen
+                "-javaagent:target/it-dependencies/org.jacoco.agent-runtime.jar=destfile=target/jacoco-it.exec",
+                "-javaagent:" + jar + "=" + timeouts.agentConnectTimeout.toMillis() + ","
+                        + timeouts.agentReadTimeout.toMillis() + ",v",
+                "-cp",
+                classPath,
+                HttpClientLauncher.class.getName(),
+                url.toString(),
+                clientType.toString(),
+                String.valueOf(timeouts.clientConnectTimeout.toMillis()),
+                String.valueOf(timeouts.clientReadTimeout.toMillis()));
+
         pb.redirectInput(Redirect.INHERIT);
         pb.redirectOutput(stdout.toFile());
         pb.redirectError(stderr.toFile());
-        
+
         return pb.start();
     }
-    
+
     private String buildClassPath() throws IOException {
-        
+
         List<String> elements = new ArrayList<>();
         elements.add(Paths.get("target", "test-classes").toString());
-        
+
         Set<String> dependencies = new HashSet<>(Arrays.asList(new String[] {
             "commons-httpclient.jar",
             "commons-codec.jar",
@@ -99,11 +102,11 @@ class AgentLauncher {
             "okhttp.jar",
             "okio.jar"
         }));
-        
+
         Files.list(Paths.get("target", "it-dependencies"))
-            .filter( p -> dependencies.contains(p.getFileName().toString()) )
-            .forEach( p -> elements.add(p.toString()));
-        
+                .filter(p -> dependencies.contains(p.getFileName().toString()))
+                .forEach(p -> elements.add(p.toString()));
+
         return String.join(File.pathSeparator, elements);
     }
 }

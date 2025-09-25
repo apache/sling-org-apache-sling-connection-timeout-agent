@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.sling</groupId>
         <artifactId>sling</artifactId>
-        <version>60</version>
+        <version>62</version>
         <relativePath />
     </parent>
     <artifactId>org.apache.sling.connection-timeout-agent</artifactId>

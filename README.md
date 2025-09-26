@@ -21,7 +21,7 @@ In addition to running the integration tests, you can also build the project wit
  - `<agent-connect-timeout>` - connection timeout in milliseconds to apply via the agent
  - `<agent-read-timeout>`- read timeout in milliseconds to apply via the agent
  - `<url>` - the URL to access
- - `<client-type>` - the client type, either `JavaNet` for java.net.URL-based connections ,`HC3` for Apache Commons HttpClient 3.x, `HC4` for Apache Commons HttpClient 4.x or `OkHttp` for OK HTTP.
+ - `<client-type>` - the client type, either `JavaNet` for java.net.URL-based connections ,`HC3` for Apache Commons HttpClient 3.x, `HC4` for Apache Commons HttpClient 4.x, `OkHttp` for OK HTTP or `JdkHttpClient` for Jdk HttpClient.
  - `<client-connect-timeout>` (optional) - the connection timeout in milliseconds to apply via client APIs
  - `<client-read-timeout>` (optional) - the read timeout in milliseconds to apply via client APIs
  
